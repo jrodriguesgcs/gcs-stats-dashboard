@@ -110,7 +110,7 @@ function App() {
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-[1920px] mx-auto px-6 py-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">GCS Calendar Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">GCS Sales Distribution Dashboard</h1>
             <p className="text-gray-600 mt-1 text-sm">
               Deal Distribution Calendar ({viewMode === 'week' ? 'Last 7 Days' : 'Today'})
             </p>
@@ -136,7 +136,7 @@ function App() {
       <footer className="bg-white mt-12 border-t border-gray-200">
         <div className="max-w-[1920px] mx-auto px-6 py-6">
           <p className="text-center text-gray-500 text-sm">
-            © 2025 Global Citizen Solutions - Calendar Dashboard
+            © 2025 Global Citizen Solutions - Sales Distribution Dashboard
           </p>
         </div>
       </footer>
