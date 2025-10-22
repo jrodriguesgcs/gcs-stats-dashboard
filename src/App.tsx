@@ -75,8 +75,11 @@ function App() {
 
     try {
       const { deals: fetchedDeals } = await fetchAllDealsWithCustomFields(setLoadingProgress);
+      
+      // DEBUG: Log distribution times
+      console.log('DEALS:', fetchedDeals.map(d => ({ title: d.title, distTime: d.customFields.distributionTime })));
+      
       setDeals(fetchedDeals);
-
       setRefreshStatus('success');
       setRefreshMessage(`Loaded ${fetchedDeals.length} deals successfully`);
     } catch (error) {
