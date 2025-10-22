@@ -2,35 +2,31 @@ import { useState } from 'react';
 import { HierarchyNode, DateColumn, Deal } from '../types';
 import { flattenHierarchy } from '../utils/hierarchyUtils';
 import HierarchyRow from './HierarchyRow';
-import DealModal from './DealModal';
+import DealListModal from './DealListModal';
 
 interface CalendarGridProps {
   hierarchy: HierarchyNode[];
   dateColumns: DateColumn[];
-  onHierarchyChange: (hierarchy: HierarchyNode[]) => void;
 }
 
 export default function CalendarGrid({
   hierarchy,
   dateColumns,
-  onHierarchyChange,
 }: CalendarGridProps) {
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [selectedDeals, setSelectedDeals] = useState<Deal[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedPath, setSelectedPath] = useState<string>('');
 
-  const toggleNode = (targetNode: HierarchyNode) => {
-    const toggleRecursive = (nodes: HierarchyNode[]): HierarchyNode[] => {
-      return nodes.map(node => {
-        if (node.key === targetNode.key) {
-          return { ...node, isExpanded: !node.isExpanded };
-        }
-        if (node.children) {
-          return { ...node, children: toggleRecursive(node.children) };
-        }
-        return node;
-      });
-    };
+  const handleCellClick = (deals: Deal[], date: string, nodePath: string) => {
+    setSelectedDeals(deals);
+    setSelectedDate(date);
+    setSelectedPath(nodePath);
+  };
 
-    onHierarchyChange(toggleRecursive(hierarchy));
+  const handleCloseModal = () => {
+    setSelectedDeals([]);
+    setSelectedDate('');
+    setSelectedPath('');
   };
 
   const flatNodes = flattenHierarchy(hierarchy);
@@ -51,13 +47,19 @@ export default function CalendarGrid({
             key={node.key}
             node={node}
             dateColumns={dateColumns}
-            onToggle={toggleNode}
-            onDealClick={setSelectedDeal}
+            onCellClick={handleCellClick}
           />
         ))}
       </div>
 
-      <DealModal deal={selectedDeal} onClose={() => setSelectedDeal(null)} />
+      {selectedDeals.length > 0 && (
+        <DealListModal
+          deals={selectedDeals}
+          date={selectedDate}
+          nodePath={selectedPath}
+          onClose={handleCloseModal}
+        />
+      )}
     </>
   );
 }

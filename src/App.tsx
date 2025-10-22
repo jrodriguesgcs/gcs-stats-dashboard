@@ -75,10 +75,6 @@ function App() {
 
     try {
       const { deals: fetchedDeals } = await fetchAllDealsWithCustomFields(setLoadingProgress);
-      
-      // DEBUG: Log distribution times
-      console.log('DEALS:', fetchedDeals.map(d => ({ title: d.title, distTime: d.customFields.distributionTime })));
-      
       setDeals(fetchedDeals);
       setRefreshStatus('success');
       setRefreshMessage(`Loaded ${fetchedDeals.length} deals successfully`);
@@ -111,7 +107,7 @@ function App() {
         />
       )}
 
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-[1920px] mx-auto px-6 py-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">GCS Calendar Dashboard</h1>
@@ -134,7 +130,6 @@ function App() {
         <CalendarGrid
           hierarchy={hierarchy}
           dateColumns={dateColumns}
-          onHierarchyChange={setHierarchy}
         />
       </main>
 

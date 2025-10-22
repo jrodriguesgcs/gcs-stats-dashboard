@@ -16,7 +16,7 @@ export default function CalendarHeader({
   isRefreshing,
 }: CalendarHeaderProps) {
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+    <div className="bg-white border-b border-gray-200 sticky top-[73px] z-30 shadow-sm">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
@@ -68,11 +68,11 @@ export default function CalendarHeader({
 
         {/* Date column headers */}
         <div className="grid gap-2" style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}>
-          <div className="text-sm font-semibold text-gray-700 px-4 py-2">
+          <div className="text-sm font-semibold text-gray-700 px-4 py-2 bg-gray-50 rounded-lg">
             Deal Hierarchy
           </div>
           {dateColumns.map((col, idx) => (
-            <div key={idx} className="text-center text-sm font-semibold text-gray-700 px-2 py-2 border-l border-gray-200">
+            <div key={idx} className="text-center text-sm font-semibold text-gray-700 px-2 py-2 border-l border-gray-200 bg-gray-50 rounded-lg">
               {col.label}
             </div>
           ))}

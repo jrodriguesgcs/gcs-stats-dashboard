@@ -1,47 +1,54 @@
-import { HierarchyNode, DateColumn } from '../types';
+import { HierarchyNode, DateColumn, Deal } from '../types';
 import { getDealsForCell } from '../utils/hierarchyUtils';
-import DealChip from './DealChip';
 
 interface HierarchyRowProps {
   node: HierarchyNode;
   dateColumns: DateColumn[];
-  onToggle: (node: HierarchyNode) => void;
-  onDealClick: (deal: any) => void;
+  onCellClick: (deals: Deal[], date: string, nodePath: string) => void;
 }
 
 export default function HierarchyRow({
   node,
   dateColumns,
-  onToggle,
-  onDealClick,
+  onCellClick,
 }: HierarchyRowProps) {
-  const indentLevel = node.level === 'owner' ? 0 : node.level === 'country' ? 1 : 2;
-  const hasChildren = node.children && node.children.length > 0;
+  const isOwner = node.level === 'owner';
+  const isCountry = node.level === 'country';
   const isProgram = node.level === 'program';
+
+  // Owner rows are section headers (banner style)
+  if (isOwner) {
+    return (
+      <div
+        className="grid gap-2 bg-blue-600 text-white font-semibold sticky top-[72px] z-10"
+        style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}
+      >
+        <div className="px-4 py-3">{node.label}</div>
+        {dateColumns.map((_, idx) => (
+          <div key={idx} className="border-l border-blue-500"></div>
+        ))}
+      </div>
+    );
+  }
+
+  // Country and Program rows
+  const bgColor = isCountry 
+    ? 'bg-gray-100 hover:bg-gray-200' 
+    : 'bg-white hover:bg-blue-50';
 
   return (
     <div
-      className={`grid gap-2 border-b border-gray-200 hover:bg-gray-50 transition-colors ${
-        node.level === 'owner' ? 'bg-gray-50' : ''
-      }`}
+      className={`grid gap-2 border-b border-gray-200 ${bgColor} transition-colors`}
       style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}
     >
       {/* Hierarchy label */}
       <div
-        className="px-4 py-3 flex items-center cursor-pointer"
-        style={{ paddingLeft: `${16 + indentLevel * 24}px` }}
-        onClick={() => hasChildren && onToggle(node)}
+        className="px-4 py-3 flex items-center"
+        style={{ paddingLeft: isCountry ? '24px' : '48px' }}
       >
-        {hasChildren && (
-          <span className="mr-2 text-blue-600 text-xs font-bold">
-            {node.isExpanded ? '▼' : '▶'}
-          </span>
-        )}
         <span
           className={`text-sm ${
-            node.level === 'owner'
-              ? 'font-semibold text-gray-900'
-              : node.level === 'country'
+            isCountry
               ? 'font-medium text-gray-800'
               : 'font-normal text-gray-700'
           }`}
@@ -50,25 +57,49 @@ export default function HierarchyRow({
         </span>
       </div>
 
-      {/* Date columns with deals */}
-      {dateColumns.map((col, idx) => (
-        <div
-          key={idx}
-          className="border-l border-gray-200 px-2 py-2 min-h-[48px]"
-        >
-          {isProgram && (
-            <div className="space-y-1">
-              {getDealsForCell(node, col.date).map(deal => (
-                <DealChip
-                  key={deal.id}
-                  deal={deal}
-                  onClick={() => onDealClick(deal)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
+      {/* Date columns with deal counts */}
+      {dateColumns.map((col, idx) => {
+        const dealCount = isProgram ? getDealsForCell(node, col.date).length : 0;
+        const deals = isProgram ? getDealsForCell(node, col.date) : [];
+        
+        // Color intensity based on deal count (0-10+ scale)
+        const getBackgroundColor = (count: number) => {
+          if (count === 0) return 'bg-white';
+          if (count === 1) return 'bg-blue-50';
+          if (count === 2) return 'bg-blue-100';
+          if (count === 3) return 'bg-blue-200';
+          if (count === 4) return 'bg-blue-300';
+          if (count >= 5) return 'bg-blue-400';
+          return 'bg-white';
+        };
+
+        const getTextColor = (count: number) => {
+          if (count === 0) return 'text-gray-400';
+          if (count >= 4) return 'text-white font-bold';
+          return 'text-gray-900 font-semibold';
+        };
+
+        return (
+          <div
+            key={idx}
+            className={`border-l border-gray-200 px-2 py-3 min-h-[48px] flex items-center justify-center ${
+              isProgram ? getBackgroundColor(dealCount) : ''
+            } ${isProgram && dealCount > 0 ? 'cursor-pointer hover:opacity-80' : ''} transition-all`}
+            onClick={() => {
+              if (isProgram && dealCount > 0) {
+                const nodePath = `${node.owner} → ${node.country} → ${node.program}`;
+                onCellClick(deals, col.label, nodePath);
+              }
+            }}
+          >
+            {isProgram && (
+              <span className={`text-sm ${getTextColor(dealCount)}`}>
+                {dealCount}
+              </span>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

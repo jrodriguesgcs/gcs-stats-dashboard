@@ -4,12 +4,18 @@ import { parseDistributionTime, isDateInDay } from './dateUtils';
 /**
  * Build 3-level hierarchy: Owner → Country → Program
  * Only include deals with valid distributionTime in date range
+ * Exclude owner "Global Citizen Solutions Operator | Global Citizen Solutions"
  */
 export function buildHierarchy(deals: Deal[], dateColumns: Date[]): HierarchyNode[] {
   const ownerMap = new Map<string, HierarchyNode>();
 
-  // Filter deals with valid distributionTime
+  // Filter deals with valid distributionTime and exclude system owner
   const validDeals = deals.filter(deal => {
+    // Exclude system owner
+    if (deal.owner === 'Global Citizen Solutions Operator | Global Citizen Solutions') {
+      return false;
+    }
+
     if (!deal.customFields.distributionTime) return false;
     const distDate = parseDistributionTime(deal.customFields.distributionTime);
     if (!distDate) return false;
@@ -31,7 +37,7 @@ export function buildHierarchy(deals: Deal[], dateColumns: Date[]): HierarchyNod
         label: owner,
         owner,
         children: [],
-        isExpanded: false,
+        isExpanded: true, // Always expanded
       });
     }
     const ownerNode = ownerMap.get(owner)!;
@@ -46,7 +52,7 @@ export function buildHierarchy(deals: Deal[], dateColumns: Date[]): HierarchyNod
         owner,
         country,
         children: [],
-        isExpanded: false,
+        isExpanded: true, // Always expanded
       };
       ownerNode.children!.push(countryNode);
     }
@@ -62,7 +68,7 @@ export function buildHierarchy(deals: Deal[], dateColumns: Date[]): HierarchyNod
         country,
         program,
         deals: [],
-        isExpanded: false,
+        isExpanded: true, // Always expanded
       };
       countryNode.children!.push(programNode);
     }
@@ -111,7 +117,7 @@ export function getDealsForCell(
 }
 
 /**
- * Recursively flatten hierarchy for rendering (respecting expand/collapse)
+ * Recursively flatten hierarchy for rendering (all rows always expanded)
  */
 export function flattenHierarchy(nodes: HierarchyNode[]): HierarchyNode[] {
   const result: HierarchyNode[] = [];
@@ -119,7 +125,7 @@ export function flattenHierarchy(nodes: HierarchyNode[]): HierarchyNode[] {
   nodes.forEach(node => {
     result.push(node);
     
-    if (node.isExpanded && node.children && node.children.length > 0) {
+    if (node.children && node.children.length > 0) {
       result.push(...flattenHierarchy(node.children));
     }
   });
