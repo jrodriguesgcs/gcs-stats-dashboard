@@ -16,11 +16,11 @@ export default function HierarchyRow({
   const isCountry = node.level === 'country';
   const isProgram = node.level === 'program';
 
-  // Owner rows are section headers (banner style)
+  // Owner rows are section headers (banner style - scrolls away, not sticky)
   if (isOwner) {
     return (
       <div
-        className="grid gap-2 bg-blue-600 text-white font-semibold sticky top-[72px] z-10"
+        className="grid gap-0 bg-blue-600 text-white font-semibold"
         style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}
       >
         <div className="px-4 py-3">{node.label}</div>
@@ -33,21 +33,21 @@ export default function HierarchyRow({
 
   // Country and Program rows
   const bgColor = isCountry 
-    ? 'bg-gray-100 hover:bg-gray-200' 
+    ? 'bg-gray-50 hover:bg-gray-100' 
     : 'bg-white hover:bg-blue-50';
 
   return (
     <div
-      className={`grid gap-2 border-b border-gray-200 ${bgColor} transition-colors`}
+      className={`grid gap-0 border-b border-gray-200 ${bgColor} transition-colors`}
       style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}
     >
       {/* Hierarchy label */}
       <div
-        className="px-4 py-3 flex items-center"
+        className="px-4 py-3 flex items-center min-w-[200px]"
         style={{ paddingLeft: isCountry ? '24px' : '48px' }}
       >
         <span
-          className={`text-sm ${
+          className={`text-sm truncate ${
             isCountry
               ? 'font-medium text-gray-800'
               : 'font-normal text-gray-700'
@@ -82,9 +82,10 @@ export default function HierarchyRow({
         return (
           <div
             key={idx}
-            className={`border-l border-gray-200 px-2 py-3 min-h-[48px] flex items-center justify-center ${
+            className={`border-l border-gray-200 flex items-center justify-center ${
               isProgram ? getBackgroundColor(dealCount) : ''
             } ${isProgram && dealCount > 0 ? 'cursor-pointer hover:opacity-80' : ''} transition-all`}
+            style={{ minHeight: '48px' }}
             onClick={() => {
               if (isProgram && dealCount > 0) {
                 const nodePath = `${node.owner} → ${node.country} → ${node.program}`;
