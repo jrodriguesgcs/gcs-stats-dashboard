@@ -21,7 +21,7 @@ export default function Login({ onLogin }: LoginProps) {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">GCS Calendar Dashboard</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">GCS Sales Distribution Dashboard</h1>
           <p className="text-gray-600">Please enter your password to continue</p>
         </div>
 
