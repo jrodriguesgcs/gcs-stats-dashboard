@@ -252,6 +252,7 @@ export async function fetchAllDealsWithCustomFields(
         distributionTime: fieldValues['15'] || '',
         primaryCountry: fieldValues['53'] || '',
         primaryProgram: fieldValues['52'] || '',
+        eligibility: fieldValues['6'] || '', // field 6 for D7 eligibility
       },
     };
   });

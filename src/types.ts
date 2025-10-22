@@ -7,6 +7,7 @@ export interface Deal {
     distributionTime?: string; // field 15
     primaryCountry?: string; // field 53
     primaryProgram?: string; // field 52
+    eligibility?: string; // field 6 - for D7 Cold/Hot distinction
     [key: string]: string | undefined;
   };
 }

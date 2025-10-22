@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HierarchyNode, DateColumn, Deal } from '../types';
-import { flattenHierarchy } from '../utils/hierarchyUtils';
+import { flattenHierarchy, calculateTotals } from '../utils/hierarchyUtils';
 import HierarchyRow from './HierarchyRow';
 import DealListModal from './DealListModal';
 
@@ -30,6 +30,7 @@ export default function CalendarGrid({
   };
 
   const flatNodes = flattenHierarchy(hierarchy);
+  const totals = calculateTotals(hierarchy, dateColumns.map(c => c.date));
 
   if (flatNodes.length === 0) {
     return (
@@ -49,6 +50,23 @@ export default function CalendarGrid({
             dateColumns={dateColumns}
             onCellClick={handleCellClick}
           />
+        ))}
+      </div>
+
+      {/* Total Row - Sticky at Bottom */}
+      <div
+        className="sticky bottom-0 z-30 grid gap-0 bg-blue-800 text-white font-bold border-t-2 border-blue-900 shadow-lg"
+        style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}
+      >
+        <div className="px-4 py-3">Total</div>
+        {totals.map((total, idx) => (
+          <div
+            key={idx}
+            className="border-l border-blue-700 flex items-center justify-center"
+            style={{ minHeight: '48px' }}
+          >
+            <span className="text-sm">{total}</span>
+          </div>
         ))}
       </div>
 

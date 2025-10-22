@@ -2,6 +2,31 @@ import { Deal, HierarchyNode } from '../types';
 import { parseDistributionTime, isDateInDay } from './dateUtils';
 
 /**
+ * Normalize program name for display
+ * - Portugal + Passive Income Visa → D7 Cold/Hot/Unknown based on field 6
+ * - Citizenship by Descent → CBD
+ * - Citizenship by Investment → CBI
+ */
+function normalizeProgramName(deal: Deal): string {
+  const country = deal.customFields.primaryCountry || 'Unknown';
+  const program = deal.customFields.primaryProgram || 'Unknown';
+  const eligibility = deal.customFields.eligibility || '';
+
+  // Portugal + Passive Income Visa → D7 variants
+  if (country === 'Portugal' && program === 'Passive Income Visa') {
+    if (eligibility === 'Eligible Cold') return 'D7 Cold';
+    if (eligibility === 'Eligible Hot') return 'D7 Hot';
+    return 'D7 (Unknown eligibility)';
+  }
+
+  // Abbreviations
+  if (program === 'Citizenship by Descent') return 'CBD';
+  if (program === 'Citizenship by Investment') return 'CBI';
+
+  return program;
+}
+
+/**
  * Build 3-level hierarchy: Owner → Country → Program
  * Only include deals with valid distributionTime in date range
  * Exclude owner "Global Citizen Solutions Operator | Global Citizen Solutions"
@@ -27,7 +52,7 @@ export function buildHierarchy(deals: Deal[], dateColumns: Date[]): HierarchyNod
   validDeals.forEach(deal => {
     const owner = deal.owner || 'Unassigned';
     const country = deal.customFields.primaryCountry || 'Unknown';
-    const program = deal.customFields.primaryProgram || 'Unknown';
+    const program = normalizeProgramName(deal); // Use normalized program name
 
     // Level 1: Owner
     if (!ownerMap.has(owner)) {
@@ -114,6 +139,33 @@ export function getDealsForCell(
     const distDate = parseDistributionTime(deal.customFields.distributionTime || '');
     return distDate && isDateInDay(distDate, columnDate);
   });
+}
+
+/**
+ * Calculate totals for each date column across all hierarchy
+ */
+export function calculateTotals(
+  hierarchy: HierarchyNode[],
+  dateColumns: Date[]
+): number[] {
+  const totals = dateColumns.map(() => 0);
+
+  const countDealsRecursive = (node: HierarchyNode) => {
+    if (node.level === 'program' && node.deals) {
+      dateColumns.forEach((col, idx) => {
+        const dealsInColumn = getDealsForCell(node, col);
+        totals[idx] += dealsInColumn.length;
+      });
+    }
+    
+    if (node.children) {
+      node.children.forEach(child => countDealsRecursive(child));
+    }
+  };
+
+  hierarchy.forEach(owner => countDealsRecursive(owner));
+  
+  return totals;
 }
 
 /**
