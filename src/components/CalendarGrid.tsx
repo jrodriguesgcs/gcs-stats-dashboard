@@ -31,6 +31,7 @@ export default function CalendarGrid({
 
   const flatNodes = flattenHierarchy(hierarchy);
   const totals = calculateTotals(hierarchy, dateColumns.map(c => c.date));
+  const grandTotal = totals.reduce((sum, count) => sum + count, 0);
 
   if (flatNodes.length === 0) {
     return (
@@ -56,7 +57,7 @@ export default function CalendarGrid({
       {/* Total Row - Sticky at Bottom */}
       <div
         className="sticky bottom-0 z-30 grid gap-0 bg-blue-800 text-white font-bold border-t-2 border-blue-900 shadow-lg"
-        style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}
+        style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr) 1fr` }}
       >
         <div className="px-4 py-3">Total</div>
         {totals.map((total, idx) => (
@@ -68,6 +69,13 @@ export default function CalendarGrid({
             <span className="text-sm">{total}</span>
           </div>
         ))}
+        {/* Grand Total - bottom right cell */}
+        <div
+          className="border-l-2 border-blue-900 flex items-center justify-center"
+          style={{ minHeight: '48px' }}
+        >
+          <span className="text-sm font-bold">{grandTotal}</span>
+        </div>
       </div>
 
       {selectedDeals.length > 0 && (

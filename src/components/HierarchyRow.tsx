@@ -16,17 +16,54 @@ export default function HierarchyRow({
   const isCountry = node.level === 'country';
   const isProgram = node.level === 'program';
 
+  // Calculate row total for owner and program rows
+  const calculateRowTotal = (): number => {
+    if (isOwner) {
+      // Sum all deals from all programs under this owner
+      let total = 0;
+      const countDealsRecursive = (n: HierarchyNode) => {
+        if (n.level === 'program' && n.deals) {
+          dateColumns.forEach(col => {
+            total += getDealsForCell(n, col.date).length;
+          });
+        }
+        if (n.children) {
+          n.children.forEach(child => countDealsRecursive(child));
+        }
+      };
+      if (node.children) {
+        node.children.forEach(child => countDealsRecursive(child));
+      }
+      return total;
+    }
+    
+    if (isProgram) {
+      // Sum all deals for this program across all date columns
+      return dateColumns.reduce((sum, col) => {
+        return sum + getDealsForCell(node, col.date).length;
+      }, 0);
+    }
+    
+    return 0; // Country rows don't show totals
+  };
+
+  const rowTotal = calculateRowTotal();
+
   // Owner rows are section headers (banner style - scrolls away, not sticky)
   if (isOwner) {
     return (
       <div
         className="grid gap-0 bg-blue-600 text-white font-semibold"
-        style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}
+        style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr) 1fr` }}
       >
         <div className="px-4 py-3">{node.label}</div>
         {dateColumns.map((_, idx) => (
           <div key={idx} className="border-l border-blue-500"></div>
         ))}
+        {/* Total column for owner */}
+        <div className="border-l-2 border-blue-900 flex items-center justify-center bg-blue-800" style={{ minHeight: '48px' }}>
+          <span className="text-sm font-bold">{rowTotal}</span>
+        </div>
       </div>
     );
   }
@@ -39,7 +76,7 @@ export default function HierarchyRow({
   return (
     <div
       className={`grid gap-0 border-b border-gray-200 ${bgColor} transition-colors`}
-      style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}
+      style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr) 1fr` }}
     >
       {/* Hierarchy label */}
       <div
@@ -101,6 +138,18 @@ export default function HierarchyRow({
           </div>
         );
       })}
+
+      {/* Total column for this row */}
+      <div 
+        className={`border-l-2 border-gray-300 flex items-center justify-center ${
+          isProgram ? 'bg-blue-800 text-white' : ''
+        }`}
+        style={{ minHeight: '48px' }}
+      >
+        {isProgram && (
+          <span className="text-sm font-bold">{rowTotal}</span>
+        )}
+      </div>
     </div>
   );
 }

@@ -66,8 +66,8 @@ export default function CalendarHeader({
           </button>
         </div>
 
-        {/* Date column headers */}
-        <div className="grid gap-2" style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr)` }}>
+        {/* Date column headers + Total column */}
+        <div className="grid gap-2" style={{ gridTemplateColumns: `200px repeat(${dateColumns.length}, 1fr) 1fr` }}>
           <div className="text-sm font-semibold text-gray-700 px-4 py-2 bg-gray-50 rounded-lg">
             Deal Hierarchy
           </div>
@@ -76,6 +76,10 @@ export default function CalendarHeader({
               {col.label}
             </div>
           ))}
+          {/* Total column header */}
+          <div className="text-center text-sm font-semibold text-white px-2 py-2 border-l-2 border-blue-900 bg-blue-800 rounded-lg">
+            Total
+          </div>
         </div>
       </div>
     </div>
