@@ -2,24 +2,33 @@ import { format, startOfDay, subDays, isSameDay } from 'date-fns';
 import { DateColumn } from '../types';
 
 /**
- * Parse DISTRIBUTION Time format: mm-dd-yyyy hh:mm
+ * Parse DISTRIBUTION Time from ActiveCampaign
+ * Handles ISO 8601 format: 2025-10-22T08:03:35+01:00
  * Returns Date in local browser timezone
  */
 export function parseDistributionTime(dateStr: string): Date | null {
   if (!dateStr || typeof dateStr !== 'string') return null;
   
-  // Handle mm-dd-yyyy hh:mm format
-  const match = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}):(\d{2})$/);
-  if (!match) return null;
+  // Try parsing as ISO 8601 (most common from ActiveCampaign)
+  const isoDate = new Date(dateStr);
+  if (!isNaN(isoDate.getTime())) {
+    return isoDate;
+  }
   
-  const [, month, day, year, hour, minute] = match;
-  return new Date(
-    parseInt(year),
-    parseInt(month) - 1, // JS months are 0-indexed
-    parseInt(day),
-    parseInt(hour),
-    parseInt(minute)
-  );
+  // Fallback: Try mm-dd-yyyy hh:mm format
+  const mmddyyyyMatch = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}):(\d{2})$/);
+  if (mmddyyyyMatch) {
+    const [, month, day, year, hour, minute] = mmddyyyyMatch;
+    return new Date(
+      parseInt(year),
+      parseInt(month) - 1,
+      parseInt(day),
+      parseInt(hour),
+      parseInt(minute)
+    );
+  }
+  
+  return null;
 }
 
 /**
