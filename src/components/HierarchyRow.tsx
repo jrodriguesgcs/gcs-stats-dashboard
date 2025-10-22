@@ -142,12 +142,12 @@ export default function HierarchyRow({
       {/* Total column for this row */}
       <div 
         className={`border-l-2 border-gray-300 flex items-center justify-center ${
-          isProgram ? 'bg-blue-800 text-white' : ''
+          isProgram ? 'bg-blue-200' : ''
         }`}
         style={{ minHeight: '48px' }}
       >
         {isProgram && (
-          <span className="text-sm font-bold">{rowTotal}</span>
+          <span className="text-sm font-semibold text-gray-900">{rowTotal}</span>
         )}
       </div>
     </div>
